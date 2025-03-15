@@ -48,6 +48,45 @@ def was_posted_recently(deal, posted_deals):
 
 # Publish a deal on Facebook
 def post_to_facebook(deal):
-    message = f"🔥 Deal Alert! {deal['title']} is now {deal['price']}!\n\n{deal['url']}\n\n(This post contai
+    message = f"🔥 Deal Alert! {deal['title']} is now {deal['price']}!\n\n{deal['url']}\n\n(This post contains an affiliate link)"
+    url = f"https://graph.facebook.com/{FACEBOOK_PAGE_ID}/feed"
+    payload = {"message": message, "access_token": FACEBOOK_PAGE_ACCESS_TOKEN}
+    response = requests.post(url, data=payload)
+    return response.status_code == 200
+
+# Main function to post deals
+def publish_deals():
+    posted_deals = load_posted_deals()
+    best_deals = get_best_amazon_deals()
+    
+    for deal in best_deals:
+        if not was_posted_recently(deal, posted_deals):
+            if post_to_facebook(deal):
+                posted_deals[deal["url"]] = datetime.now().strftime("%Y-%m-%d")
+                save_posted_deals(posted_deals)
+            time.sleep(5)
+
+# Schedule the bot to run every 3 hours
+schedule.every(3).hours.do(publish_deals)
+
+# Dummy route for Render
+@app.route('/')
+def home():
+    return "Bot is running!"
+
+# Keep the scheduler running in the background
+def run_scheduler():
+    while True:
+        schedule.run_pending()
+        time.sleep(60)
+
+if __name__ == "__main__":
+    # Run the bot immediately at startup
+    publish_deals()
+    
+    from threading import Thread
+    scheduler_thread = Thread(target=run_scheduler)
+    scheduler_thread.start()
+    app.run(host='0.0.0.0', port=int(os.getenv("PORT", 8080)))
 
 
