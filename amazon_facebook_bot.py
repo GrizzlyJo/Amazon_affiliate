@@ -40,7 +40,7 @@ def get_best_amazon_deals():
 # Check if a deal was posted in the last 30 days
 def was_posted_recently(deal, posted_deals):
     if deal["url"] in posted_deals:
-        last_posted = datetime.strptime(posted_deals[deal["url"], "%Y-%m-%d"])
+        last_posted = datetime.strptime(posted_deals[deal["url"]], "%Y-%m-%d")
         if datetime.now() - last_posted < timedelta(days=30):
             return True
     return False
@@ -68,7 +68,9 @@ def publish_deals():
 # Schedule the bot to run every 3 hours
 schedule.every(3).hours.do(publish_deals)
 
-# Run continuously
-while True:
-    schedule.run_pending()
-    time.sleep(60)
+# Run continuously in the background (no HTTP server, just background execution)
+if __name__ == "__main__":
+    while True:
+        schedule.run_pending()
+        time.sleep(60)
+
