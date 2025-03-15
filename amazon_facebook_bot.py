@@ -2,6 +2,7 @@ import json
 import time
 import requests
 import schedule
+import os
 from datetime import datetime, timedelta
 
 # Facebook API credentials
@@ -67,6 +68,9 @@ def publish_deals():
 
 # Schedule the bot to run every 3 hours
 schedule.every(3).hours.do(publish_deals)
+
+# Get the port from environment variables (Render expects it to be set)
+port = int(os.environ.get("PORT", 5000))  # Use a dummy port, won't be used
 
 # Run continuously in the background (no HTTP server, just background execution)
 if __name__ == "__main__":
