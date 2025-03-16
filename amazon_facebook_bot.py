@@ -8,34 +8,17 @@ import boto3
 from flask import Flask
 
 # Amazon API credentials
-AMAZON_ACCESS_KEY = os.environ.get("AMAZON_ACCESS_KEY")
-AMAZON_SECRET_KEY = os.environ.get("AMAZON_SECRET_KEY")
-ASSOCIATE_TAG = os.environ.get("ASSOCIATE_TAG")
+AMAZON_ACCESS_KEY = "YOUR_AMAZON_ACCESS_KEY"
+AMAZON_SECRET_KEY = "YOUR_AMAZON_SECRET_KEY"
+ASSOCIATE_TAG = "YOUR_TRACKING_ID"
 
 # Facebook API credentials
-PAGE_ID = os.environ.get("PAGE_ID")
-PAGE_ACCESS_TOKEN = os.environ.get("PAGE_ACCESS_TOKEN")
-
-# Initialize Flask app
-app = Flask(__name__)
+PAGE_ID = "YOUR_PAGE_ID"  # Your Facebook page ID
+PAGE_ACCESS_TOKEN = "YOUR_PAGE_ACCESS_TOKEN"  # Your Facebook page access token
 
 # Function to get best deals from Amazon
 def get_amazon_deals():
-    # Amazon API request to get best-sellers
-    endpoint = "https://webservices.amazon.ca/onca/xml"
-    params = {
-        "Service": "AWSECommerceService",
-        "Operation": "ItemSearch",
-        "SearchIndex": "All",
-        "ResponseGroup": "Images,ItemAttributes,Offers",
-        "Sort": "salesrank",
-        "AWSAccessKeyId": AMAZON_ACCESS_KEY,
-        "AssociateTag": ASSOCIATE_TAG
-    }
-    response = requests.get(endpoint, params=params)
-    
-    # Parse the XML response (simplified for now)
-    # This part should be updated to properly handle the Amazon API response
+    # Amazon API request to get best-sellers (simplified for now)
     deals = [
         {
             "title": "Sample Product",
@@ -66,40 +49,29 @@ def post_to_facebook(deal):
     message = format_facebook_post(deal)
     image_url = deal['image']
     
-    fb_api_url = f"https://graph.facebook.com/v18.0/{PAGE_ID}/photos"
+    # URL to post on Facebook
+    post_url = f"https://graph.facebook.com/v12.0/{PAGE_ID}/feed"
+    
+    # Data for the post
     data = {
-        "url": image_url,
-        "caption": message,
+        "message": message,
         "access_token": PAGE_ACCESS_TOKEN
     }
-    response = requests.post(fb_api_url, data=data)
-    print(response.json())
 
-# Post immediately when the app starts
-def post_on_start():
-    deals = get_amazon_deals()
-    if deals:
-        post_to_facebook(deals[0])
+    # Sending POST request to Facebook Graph API
+    response = requests.post(post_url, data=data)
+    print(response.json())
 
 # Scheduler to run every hour
 def job():
+    # Get Amazon deals
     deals = get_amazon_deals()
     if deals:
         post_to_facebook(deals[0])
 
-# Flask routes
-@app.route('/')
-def index():
-    return "Amazon Facebook Bot is running!"
+# Set up scheduler to run every hour
+schedule.every(1).hour.do(job)
 
-@app.route('/start-bot')
-def start_bot():
-    post_on_start()
-    return "Bot started and posted the first deal!"
-
-# Run the app and post as soon as the Flask server starts
-if __name__ == "__main__":
-    post_on_start()  # Post as soon as the server starts
-    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))
-
-
+while True:
+    schedule.run_pending()
+    time.sleep(60)
