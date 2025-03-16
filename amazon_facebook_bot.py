@@ -4,9 +4,7 @@ import requests
 import schedule
 import os
 from datetime import datetime, timedelta
-from flask import Flask
-
-app = Flask(__name__)
+from threading import Thread
 
 # Facebook API credentials
 FACEBOOK_PAGE_ACCESS_TOKEN = os.getenv("FACEBOOK_PAGE_ACCESS_TOKEN", "your_facebook_access_token")
@@ -80,11 +78,6 @@ def publish_deals():
 # Schedule the bot to run every hour
 schedule.every(1).hour.do(publish_deals)
 
-# Dummy route for Render
-@app.route('/')
-def home():
-    return "Bot is running!"
-
 # Keep the scheduler running in the background
 def run_scheduler():
     while True:
@@ -95,8 +88,7 @@ if __name__ == "__main__":
     # Run the bot immediately at startup
     publish_deals()
     
-    from threading import Thread
+    # Start the scheduler in a separate thread
     scheduler_thread = Thread(target=run_scheduler)
     scheduler_thread.start()
-    app.run(host='0.0.0.0', port=int(os.getenv("PORT", 8080)))
 
