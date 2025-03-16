@@ -1,4 +1,3 @@
-flask
 requests
 schedule
 pip>=25.0.1
