@@ -57,5 +57,35 @@ def post_to_facebook(deal):
     
     # Data for the post
     data = {
-        "message": 
+        "message": message,
+        "access_token": PAGE_ACCESS_TOKEN
+    }
+
+    # Sending POST request to Facebook Graph API
+    response = requests.post(post_url, data=data)
+    print(response.json())
+
+# Scheduler to run every hour
+def job():
+    # Get Amazon deals
+    deals = get_amazon_deals()
+    if deals:
+        post_to_facebook(deals[0])
+
+# Set up scheduler to run every hour
+schedule.every(1).hour.do(job)
+
+# Flask route to trigger posting immediately (for testing)
+@app.route('/')
+def index():
+    job()  # Trigger the job to post immediately
+    return "Bot is posting to Facebook!"
+
+# Run Flask app with a dummy port
+if __name__ == "__main__":
+    # Start the job immediately after the server starts
+    job()  # This ensures the bot posts when the app starts
+
+    app.run(host='0.0.0.0', port=8080)  # Exposing on port 8080 (dummy port)
+
 
