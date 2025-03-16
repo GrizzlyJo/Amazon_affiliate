@@ -1,4 +1,5 @@
 flask
 requests
 schedule
+gunicorn
 pip>=25.0.1
