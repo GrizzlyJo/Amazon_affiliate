@@ -63,7 +63,13 @@ def post_to_facebook(deal):
 
     # Sending POST request to Facebook Graph API
     response = requests.post(post_url, data=data)
-    print(response.json())
+    
+    # Debugging the response
+    if response.status_code != 200:
+        print(f"Error posting to Facebook: {response.status_code}")
+        print(response.json())
+    else:
+        print("Successfully posted to Facebook")
 
 # Scheduler to run every hour
 def job():
@@ -87,5 +93,3 @@ if __name__ == "__main__":
     job()  # This ensures the bot posts when the app starts
 
     app.run(host='0.0.0.0', port=8080)  # Exposing on port 8080 (dummy port)
-
-
