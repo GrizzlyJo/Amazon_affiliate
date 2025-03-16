@@ -5,6 +5,7 @@ import schedule
 from datetime import datetime, timedelta
 import xml.etree.ElementTree as ET
 import boto3
+import os  # Add this import to fix the issue
 
 # Dummy port (for testing or deployment purposes)
 PORT = os.environ.get("PORT", 8080)  # Default to 8080 if not set in the environment
