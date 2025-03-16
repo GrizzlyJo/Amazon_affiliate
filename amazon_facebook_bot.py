@@ -16,6 +16,9 @@ ASSOCIATE_TAG = "YOUR_TRACKING_ID"
 PAGE_ID = "YOUR_PAGE_ID"  # Your Facebook page ID
 PAGE_ACCESS_TOKEN = "YOUR_PAGE_ACCESS_TOKEN"  # Your Facebook page access token
 
+# Flask app setup with dummy port
+app = Flask(__name__)
+
 # Function to get best deals from Amazon
 def get_amazon_deals():
     # Amazon API request to get best-sellers (simplified for now)
@@ -72,6 +75,12 @@ def job():
 # Set up scheduler to run every hour
 schedule.every(1).hour.do(job)
 
-while True:
-    schedule.run_pending()
-    time.sleep(60)
+# Flask route to trigger posting immediately (for testing)
+@app.route('/')
+def index():
+    job()  # Trigger the job to post immediately
+    return "Bot is posting to Facebook!"
+
+# Run Flask app with a dummy port
+if __name__ == "__main__":
+    app.run(host='0.0.0.0', port=8080)  # Exposing on port 8080 (dummy port)
