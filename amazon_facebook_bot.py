@@ -7,6 +7,13 @@ from datetime import datetime, timedelta
 import boto3
 from flask import Flask
 
+import requests
+import json
+import time
+import schedule
+from datetime import datetime, timedelta
+from flask import Flask
+
 # Amazon API credentials
 AMAZON_ACCESS_KEY = "YOUR_AMAZON_ACCESS_KEY"
 AMAZON_SECRET_KEY = "YOUR_AMAZON_SECRET_KEY"
